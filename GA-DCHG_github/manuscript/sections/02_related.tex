@@ -1,0 +1,25 @@
+% Related work (single positioning paragraph).
+\section{Related Work}
+\label{sec:related}
+
+Graph neural networks are now standard for machinery health monitoring
+\cite{li2021hg,li2021mrfcn}, and hypergraphs extend them to
+higher-order group interactions \cite{feng2019,wang2023hyp}; surveys
+situate these models within the wider deep-learning diagnostics literature
+\cite{zhao2020,lei2020}. Two lines matter most for us. First,
+spatio-temporal hypergraphs \cite{bao2025sthfd,liu2026mat} build separate
+spatial and temporal hyperedges for fault signals; they are effective but rely on
+multi-sensor or explicitly space--time factorized inputs and do not return to
+single-channel phase-space reconstruction. Second, cross-condition and
+domain-adaptive methods align node-embedding distributions, typically
+adversarially or by a kernel distance \cite{li2025amh,ganin2016domain,
+gretton2012kernel,arjovsky2017wgan,pan2010survey,long2015learning}; they operate
+on embeddings or multi-view features, not on the reconstructed attractor
+geometry. Our baseline gates a phase-space hypergraph's attention with
+edge-geometry descriptors and audits the resulting attention--geometry
+correlation; GA-DCHG departs from both lines by making those descriptors
+\emph{active} anchors: screening them for cross-domain invariance, letting them
+steer hyperedge generation, and aligning source and target in the scalar
+\emph{anchor-geometry} space with a closed-form $1$-Wasserstein term rather than
+on embeddings. This keeps the alignment cheap and physically interpretable and
+uses test-time perturbation rather than passive correlation auditing.

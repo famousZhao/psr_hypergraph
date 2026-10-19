@@ -1,0 +1,37 @@
+% Experimental setup.
+\section{Experimental Setup}
+\label{sec:setup}
+
+\subsection{Data and cross-condition protocols}
+\label{sec:data}
+
+We use the CWRU bearing data \cite{zheng2019cwru}, which provides drive-end
+acceleration under four motor loads (0--3\,hp) and ten classes (normal, inner-race,
+ball, and outer-race faults at three severities each); load is the cross-domain
+axis, shifting rotation speed and fault impulsiveness. Two disjoint protocols
+carry the main evaluation:
+\begin{itemize}
+  \item \textbf{cwru\_03}: single-source hardest case. Train on CWRU load 0,
+  transfer to load 3, ten classes.
+  \item \textbf{cwru\_0123}: multi-source case. Train on loads 0,1,2, transfer
+  to load 3, ten classes.
+\end{itemize}
+Both are recording- and condition-disjoint (Sec.~\ref{sec:method}), so no test
+window shares a recording or operating condition with training.
+
+\subsection{Models and implementation}
+\label{sec:models}
+
+We compare the raw-signal \textbf{1D-CNN} baseline \cite{ince2016real,
+wen2018new,zhang2017new}, the source-only structural baseline
+\textbf{DynHGNN+}, the full \textbf{GA-DCHG}, and its ablations, namely
+GA-DCHG $-$align, $-$temporal, and $-$anchor. Embedding dimension $m=3$ chosen
+by lag through mutual information \cite{fraser1986}, segments of $S=64$ state
+points,
+$n_{\mathrm{seg}}=4$ per window, neighbourhood order $k=8$, maximal hyperedge
+size $K_{\max}=12$, anchor strength $\eta=1.0$, propagation $\tau=0.5$, and
+alignment weight $\lambda=0.5$; we train for $60$ epochs with batch size $16$,
+Adam with learning rate $2\times10^{-3}$, and the alignment term active from the
+first epoch. Checkpoints are selected by source validation accuracy; every
+protocol runs over three seeds $\{0,1,2\}$ and we report mean $\pm$ std
+target-test accuracy.

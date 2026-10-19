@@ -1,0 +1,116 @@
+% Results.
+\section{Results}
+\label{sec:results}
+
+\subsection{R1: the geometric anchor is protocol-dependent}
+\label{sec:r1}
+
+Table~\ref{tab:screen} reports the normalized $1$-Wasserstein distance
+$W_1(d)$ of each descriptor and the selected anchor for the two protocols.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Component 1: normalized source--target distance $W_1(d)$ of each
+  edge-geometry descriptor and the data-selected geometric anchor.}
+  \label{tab:screen}
+  \input{tables/tab_screen}
+\end{table}
+
+The anchor is \emph{not} a fixed descriptor: curvature is the load-invariant
+anchor for the single-source CWRU shift cwru\_03, where
+$W_1=\WOneCZeroThreeCurvature$ is the smallest, whereas filling is the anchor
+for the multi-source CWRU protocol cwru\_0123 with
+$W_1=\WOneCZeroOneTwoThreeFilling$. Getting it wrong is concrete: on cwru\_03
+filling is the \emph{most} domain-specific descriptor at
+$W_1=\WOneCZeroThreeFilling$, so hard-coding filling as the anchor would inject
+precisely the shift it is meant to remove; on cwru\_0123 curvature is the least
+invariant at $W_1=\WOneCZeroOneTwoThreeCurvature$. The screening makes ``which
+geometry is transferable'' measurable per protocol, using only unlabeled target
+data.
+
+\subsection{R2: geometric models are load-robust; GA-DCHG is best}
+\label{sec:r2}
+
+Table~\ref{tab:cross} reports target-test accuracy (mean $\pm$ std over three
+seeds) and the gap to the 1D-CNN.
+
+\begin{table*}[t]
+  \centering
+  \small
+  \caption{Cross-domain target-test accuracy (mean $\pm$ std over three seeds)
+  and the gap to the 1D-CNN baseline (positive = above the CNN).}
+  \label{tab:cross}
+  \input{tables/tab_cross}
+\end{table*}
+
+\textbf{cwru\_03.} The raw 1D-CNN degrades sharply under the load shift, reaching
+only \AccCZeroThreeCnn{} on the target test set; the structural baseline
+DynHGNN+ is \GapCZeroThreeDynhg{} points \emph{above} the CNN, and GA-DCHG
+improves on the structural baseline to reach the best accuracy,
+\GapCZeroThreeGad{} points above the CNN (Table~\ref{tab:cross}). The
+higher-order geometry of the reconstructed attractor is markedly more invariant
+to the operating point than the raw waveform. The robustness that structural
+models are assumed to lack is, on this protocol, precisely where they excel.
+
+\textbf{cwru\_0123.} The multi-source protocol repeats the pattern: the 1D-CNN
+reaches \AccCZeroOneTwoThreeCnn{}, DynHGNN+ is
+\GapCZeroOneTwoThreeDynhg{} points above it, and GA-DCHG reaches
+\AccCZeroOneTwoThreeGad{} (\GapCZeroOneTwoThreeGad{} above the CNN, the best of
+all models). The consistent ordering across both protocols, GA-DCHG $\geq$
+DynHGNN+ $\gg$ 1D-CNN, confirms the cross-domain advantage comes from the
+phase-space geometry and that actively anchoring it helps.
+
+\subsection{R3: component ablation}
+\label{sec:r3}
+
+Table~\ref{tab:ablation} isolates the three components on both protocols.
+
+\begin{table*}[t]
+  \centering
+  \small
+  \caption{Component ablation: target-test accuracy and the change ($\Delta$)
+  relative to the full GA-DCHG.}
+  \label{tab:ablation}
+  \input{tables/tab_ablation}
+\end{table*}
+
+On cwru\_0123 the component contributions are resolvable: removing the anchor
+drops GA-DCHG by \XAccCZeroOneTwoThreeGad{}${}-{}$\XAccCZeroOneTwoThreeAnchor{}
+to \XAccCZeroOneTwoThreeAnchor{}, and removing the temporal propagation to
+\XAccCZeroOneTwoThreeTemp{}, at seed stds of only \XSdCZeroOneTwoThreeAnchor{} and
+\XSdCZeroOneTwoThreeTemp{}. The anchor screening (C1) and temporal
+propagation (C2) therefore carry part of the cross-domain benefit. The geometry-space
+alignment (C3) is instead a zero-accuracy-cost, explainable regularizer:
+removing it costs at most
+\XAccCZeroOneTwoThreeGad{}$-{}$\XAccCZeroOneTwoThreeAlign{} points (cwru\_0123)
+and nothing (cwru\_03), both within seed noise, and its value is the physical
+grounding and auditability it gives the cross-domain coupling. On cwru\_03
+the three ablations remain within seed-level noise of the full model (seed std up
+to \SdMaxCZeroThree{}); at three seeds this single-source protocol alone cannot
+separate them, but the multi-source protocol resolves the effect.
+
+\subsection{R4: decisions are sensitive to the anchor geometry}
+\label{sec:r4}
+
+Table~\ref{tab:audit} reports the intervention audit: perturbing each descriptor
+by $\delta\cdot\mathrm{std}$ at test time.
+
+\begin{table}[t]
+  \centering
+  \small
+  \caption{Intervention audit: flip rate when descriptor $j$ is perturbed at
+  scale $\delta$ ($\ast$ marks the per-protocol anchor). Perturbing any geometry
+  descriptor flips a non-trivial fraction of decisions, evidencing that geometry
+  participates in the cross-domain decision.}
+  \label{tab:audit}
+  \input{tables/tab_audit}
+\end{table}
+
+Perturbing any of the three geometry descriptors flips a non-trivial fraction of
+target-test decisions (\FlipScale{} on average), evidencing that the decision
+depends on the geometry rather than only on the raw signal. The
+descriptor-specific ranking is not cleanly separated at this sample size, so
+the cross-domain decision is \emph{sensitive to the edge geometry} rather than
+tied to one descriptor in particular, consistent with the screening's
+identification of geometry as the transferable quantity.

@@ -1,0 +1,104 @@
+% Method.
+\section{Method: GA-DCHG}
+\label{sec:method}
+
+\subsection{Phase-space hypergraph baseline}
+\label{sec:baseline}
+
+From a vibration signal $x(t)$ we reconstruct the phase space by time-delay
+embedding \cite{takens1981,fraser1986,kennel1992}, yielding a trajectory of
+state points $\bm{x}_t\in\mathbb{R}^m$; phase-space reconstruction and its
+geometry have been used for rotor fault diagnosis in complex networks
+\cite{zhao2025icmds}. The trajectory is partitioned into
+segments (windows); within a segment the \emph{dynamical distance}
+\begin{equation}
+  d^{dyn}_{ij} \;=\; \lVert \bm{x}_i - \bm{x}_j \rVert \cdot \exp\!\bigl(
+  -\tfrac{|t_i - t_j|}{\sigma}\bigr)
+\label{eq:dyn}
+\end{equation}
+combines geometric separation with a time-decay that prefers temporally local
+neighbours, and a $k$-nearest-neighbour rule on $d^{dyn}$ defines hyperedges
+aggregated by a hypergraph layer \cite{feng2019}. The baseline gates its
+attention with three \emph{edge-geometry descriptors} of each hyperedge $e$
+\cite{grassberger1983}: local curvature $\kappa_e$, expansion $\chi_e$, and
+filling $\rho_e$, collected as $\bm{\phi}_e=(\kappa_e,\chi_e,\rho_e)$. These
+descriptors are \emph{passive}: they gate attention but do not shape how
+hyperedges are formed.
+As shown in Sec.~\ref{sec:results}, the phase-space geometry itself is markedly
+more invariant to a load shift than the raw waveform, so the structural model
+already transfers far better than a raw 1D-CNN under load. GA-DCHG exploits this
+by making the geometry \emph{active}: the descriptors become anchors that decide
+which hyperedges are generated, how they evolve over time, and how source and
+target are aligned.
+
+\subsection{C1: data-driven anchor screening}
+\label{sec:c1}
+
+Which descriptor is stable across a domain shift is answered empirically, not by
+assumption. For a protocol with source condition $\mathcal{S}$ and target
+condition $\mathcal{T}$, we pool the per-edge descriptor values in each domain
+and measure, for each $d\in\{\kappa,\chi,\rho\}$, the normalized
+$1$-Wasserstein distance $W_1(d)=\mathrm{Wass}_1(p_d^{\mathcal{S}},
+p_d^{\mathcal{T}})/\mathrm{std}(p_d^{\mathcal{S}}\cup p_d^{\mathcal{T}})$
+between the source and target pools, using only unlabeled target windows. The
+\emph{geometric anchor} is the descriptor with the smallest distance,
+$a^\star=\arg\min_d W_1(d)$ (Table~\ref{tab:screen}); the screening gives a
+per-protocol anchor, not a fixed descriptor (Sec.~\ref{sec:r1}).
+
+\subsection{C2: anchor-modulated dynamic hyperedge generation}
+\label{sec:c2}
+
+For a window we compute the anchor descriptor $h_e$ of each hyperedge
+$e$ and its mean $\alpha_s$ over the hyperedges of segment $s$. Because the fault
+trajectory is smooth, the anchor state is propagated along the segment index by
+an exponential moving average,
+\begin{equation}
+  \bar\alpha_s \;=\; \tau\,\bar\alpha_{s-1} + (1-\tau)\,\alpha_s,
+\label{eq:ema}
+\end{equation}
+giving each hyperedge a short-term memory of geometric drift. The modulated
+distance used for hyperedge formation is
+\begin{equation}
+  \tilde d_{ij} \;=\; d^{dyn}_{ij}\,\Bigl(1 + \eta\,\bigl|\tfrac{1}{2}
+  (h_i + h_j) - \bar\alpha_s\bigr|\Bigr),
+\label{eq:mod}
+\end{equation}
+which strengthens connections between pairs whose anchor geometry is close to
+the running trajectory state and weakens those that deviate. Temporal
+propagation is applied \emph{only} to the anchor descriptor; non-anchor
+descriptors remain window-local so that domain-specific geometry cannot pollute
+the cross-domain state.
+
+\subsection{C3: geometry-space alignment}
+\label{sec:c3}
+
+Instead of adversarial embedding alignment, we align the \emph{effective anchor
+geometry}: the attention-weighted anchor statistic $g_{\bm w}$ of a window
+(its learned hyperedge attention weights $\beta_{\bm w e}$, defined as in
+\cite{vaswani2017}) is a scalar, and the alignment loss is the closed-form
+$1$-Wasserstein distance between the source and target-adapt sets of these
+scalars,
+\begin{equation}
+  \mathcal{L}_{\mathrm{align}} \;=\; \mathrm{Wass}_1\!\bigl(\{g_{\bm w}\}_{\bm w\in
+  \mathcal{S}}, \{g_{\bm w}\}_{\bm w \in \mathcal{T}_{\mathrm{adapt}}}\bigr),
+\label{eq:align}
+\end{equation}
+added to the source cross-entropy with weight $\lambda$:
+$\mathcal{L}=\mathcal{L}_{\mathrm{CE}}+\lambda\,\mathcal{L}_{\mathrm{align}}$.
+Because the anchor is a scalar, the $1$-Wasserstein term needs only a sort;
+it equates how the fault trajectory fills the phase space in the two domains and
+is computationally free.
+
+\subsection{C4: strict protocol and intervention audit}
+\label{sec:c4}
+
+Source and target never share a recording; the target is split into an unlabeled
+\emph{adaptation} set (65\%) and a held-out \emph{test} set (35\%), also
+recording-disjoint. We train on labeled source windows plus the target-adapt set
+(for alignment) and report target-test accuracy. To evidence that the decision
+\emph{uses} the geometry, we perturb descriptor $j$ at test time,
+$\phi^{(j)}_e \leftarrow \phi^{(j)}_e + \delta\,\mathrm{std}_j\,z_e$ with
+$z_e\sim\mathcal{N}(0,1)$, and measure the \emph{flip rate}, defined as the
+fraction of test windows whose prediction changes. A decision that uses the geometry is
+measurably disrupted by the perturbation, whereas an ignored descriptor leaves
+decisions unchanged.

@@ -1,0 +1,62 @@
+% ------------------------------------------------------------------
+% Current Science SUBMISSION manuscript: single column, 12 pt Times,
+% double-spaced. Content is identical to the camera-ready two-column
+% version (main.tex); only the layout differs, per the journal's
+% submission checklist (double-spaced, 12-pt, Times New Roman).
+% ------------------------------------------------------------------
+\documentclass[12pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{mathptmx}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{cite}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\graphicspath{{figures/}}
+\input{macros}
+\doublespacing
+
+% bibliography in manuscript style (single-spaced, readable)
+\let\gadoldthebib\thebibliography
+\renewcommand{\thebibliography}[1]{\gadoldthebib{#1}\singlespacing\setlength{\itemsep}{0pt}}
+
+\title{Geometry-Anchored Dynamic Cross-Domain Hypergraphs for\\[4pt]
+Bearing Fault Diagnosis under Load Shift}
+
+\author{%
+Zhenmin Zhao$^{1}$, Jianghong Li$^{2,3,\ast}$, Jiahang Cui$^{2}$\\[8pt]
+\footnotesize
+\parbox{0.92\textwidth}{\centering
+$^{1}$National Elite Institute of Engineering, Northwestern Polytechnical University, Xi'an 710072, China; $^{2}$School of Power and Energy, Northwestern Polytechnical University, Xi'an 710072, China; $^{3}$Science and Technology on Altitude Simulation Laboratory, Northwestern Polytechnical University, Xi'an 710072, China; $^{\ast}$Corresponding author: Jianghong Li, e-mail: jhli@nwpu.edu.cn; 2022160894@mail.nwpu.edu.cn (Z. Zhao); cui275228896@mail.nwpu.edu.cn (J. Cui)}%
+}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/08_significance}
+\input{sections/01_intro}
+\input{sections/02_related}
+\input{sections/03_method}
+\input{sections/04_setup}
+\input{sections/05_results}
+\input{sections/06_discussion}
+\input{sections/07_conclusion}
+
+\section*{Acknowledgements}
+The authors thank the maintainers of the Case Western Reserve University
+bearing data for making the raw recordings publicly available.
+
+\input{sections/refs_cs}
+
+\end{document}

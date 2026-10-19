@@ -1,0 +1,51 @@
+% Discussion.
+\section{Discussion}
+\label{sec:discussion}
+
+\textbf{Geometry is the transferable quantity.} The central result is that under
+a load shift the higher-order geometry of the reconstructed phase-space attractor
+transfers markedly better than the raw waveform: the structural models and
+GA-DCHG sit \GapCZeroThreeDynhg{}/\GapCZeroThreeGad{} and
+\GapCZeroOneTwoThreeDynhg{}/\GapCZeroOneTwoThreeGad{} points above the 1D-CNN on
+cwru\_03 and cwru\_0123 respectively. Raw signal statistics such as amplitude
+envelopes and energy bands are strongly tied to the operating point, whereas the local
+curvature, expansion, and filling of the attractor are more intrinsic to the
+fault's dynamical signature. GA-DCHG realizes this by making the geometry active,
+and attains the best accuracy on both protocols.
+
+\textbf{Anchor selection as method, not assumption.} Because the invariant
+geometry is \emph{protocol-dependent}, hard-coding a descriptor inherits the
+shift of a domain-specific one whenever the regime changes. Screening by the
+normalized $1$-Wasserstein distance is simple, uses only unlabeled target data,
+and is a standalone contribution that should transfer to other phase-space-based
+representations.
+
+\textbf{Intervention audit and the ablation trade-off.} R4 perturbs the edge
+geometry at test time, rather than only measuring attention--geometry
+correlation: perturbing the edge geometry flips
+\FlipScale{} of decisions on average, showing the decision depends on the geometry.
+The component ablation (R3) is within seed noise on
+cwru\_03 but is resolvable on cwru\_0123, where removing the anchor or the
+temporal propagation degrades the model beyond its seed std. The geometry-space
+alignment (C3) acts as a zero-accuracy-cost, explainable regularizer: on
+cwru\_0123 removing it costs at most 0.010 accuracy points, on cwru\_03 it
+sits within seed noise, and its physical interpretation is independent of any
+accuracy gain.
+
+\textbf{Limitations.} We evaluate only the CWRU load axis, which has four loads,
+at three seeds, bounding the resolution of component-level differences; a more
+fine-grained multi-rig or multi-seed study would sharpen the component estimates.
+We also note that an MFPT cross-load transfer is not feasible in the same form:
+its normal class is recorded at a single load, and an extreme low\,$\rightarrow$\,high
+fault-load shift transferred for no model, including the 1D-CNN, so we do not
+report an MFPT headline number. Finally, the anchor is selected from unlabeled
+target data, legitimate in unsupervised domain adaptation but to be revisited if
+no target data were available.
+
+\textbf{Broader impact.} Because the anchor is a scalar geometry statistic, the
+pipeline is lightweight and runs on CPU for these data sizes; the screening and
+intervention audit give practitioners a concrete way to decide \emph{which}
+geometry transfers for their rig and to verify a deployed model actually uses it.
+The scalar anchor is also relevant to uncertainty-aware, active model
+updating \cite{hong2025bayes,song2025quad}, which can attach probabilistic
+guarantees as operating conditions evolve.

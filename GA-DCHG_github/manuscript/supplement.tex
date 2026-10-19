@@ -1,0 +1,61 @@
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\begin{document}
+
+\begin{center}
+{\large\bf Supplementary Material: GA-DCHG Implementation Details and Additional Results}
+\end{center}
+
+\vspace{1em}
+
+\noindent\textbf{1 Implementation details}
+
+All models are trained with the Adam optimizer at learning rate $2\times10^{-3}$ for 60 epochs with batch size 16; the 1-Wasserstein alignment term is active from the first epoch. Every protocol runs over three seeds $\{0,1,2\}$, and the checkpoint is selected by source validation accuracy and evaluated on the target test set. Hypergraph caches are precomputed once per protocol; all reported numbers are produced by the released pipeline from the raw CWRU recordings.
+
+\vspace{0.5em}
+
+\noindent\textbf{1.1 Multi-source CWRU screening (cwru\_0123)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Descriptor & W1 distance & Anchor \\
+\midrule
+$\kappa$ & 1.230 & \\
+$\chi$   & 1.097 & \\
+$\rho$   & 0.848 & anchor \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.5em}
+
+\noindent\textbf{1.2 Multi-source CWRU cross-domain evaluation (cwru\_0123)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Method & Acc. & Gap (vs 1D-CNN) \\
+\midrule
+1D-CNN            & 0.788 & $+0.000$ \\
+DynHGNN+          & 0.862 & $+0.074$ \\
+GA-DCHG           & \textbf{0.902} & $\mathbf{+0.114}$ \\
+\hspace{1em}$-$align      & 0.892 & $+0.104$ \\
+\hspace{1em}$-$temporal   & 0.872 & $+0.084$ \\
+\hspace{1em}$-$anchor     & 0.848 & $+0.060$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.5em}
+
+\noindent\textbf{2 Notes}
+
+The multi-source CWRU protocol (loads 0,1,2 $\to$ 3) confirms the main findings on a second CWRU shift: the structural baseline and GA-DCHG again exceed the 1D-CNN by a clear margin, and GA-DCHG is the best model. Removing the data-selected anchor ($-$anchor, 0.848) or temporal propagation ($-$temporal, 0.872) produces the largest drops, consistent with the main text's claim that the anchor screening and temporal propagation carry part of the cross-domain benefit.
+
+\end{document}

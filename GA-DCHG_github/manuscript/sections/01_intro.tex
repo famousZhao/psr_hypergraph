@@ -1,0 +1,44 @@
+% Introduction.
+\section{Introduction}
+\label{sec:intro}
+
+Cross-condition fault diagnosis trains on data from one operating condition and
+must classify faults when the machine runs under another; the resulting domain
+shift moves both the raw waveform and the fault dynamics, so a model that
+memorizes source-domain statistics can degrade sharply. Graph- and
+hypergraph-based models \cite{li2021hg,li2021mrfcn,kipf2017,feng2019} have been
+widely proposed for this setting, yet a recurrent criticism is that relational
+structural models are fragile under domain shift compared with raw-signal
+networks \cite{ince2016real,wen2018new,zhang2017new}. We study this question for
+\emph{phase-space hypergraph} models, which reconstruct the phase space of a
+single vibration channel by delay embedding \cite{takens1981,packard1980geometry,
+fraser1986,kennel1992} and build a hypergraph over the reconstructed attractor,
+gating attention with edge-geometry descriptors, namely the local curvature
+$\kappa$, expansion $\chi$, and filling $\rho$ of each hyperedge \cite{grassberger1983}.
+Under strict recording- and condition-disjoint protocols on the CWRU bearings, we
+find the empirical answer is \emph{positive and structural}: under a load shift
+the 1D-CNN degrades sharply, whereas the phase-space hypergraph models transfer
+substantially better, because the higher-order geometry of the reconstructed
+attractor is less sensitive to the operating point than raw signal statistics.
+The structural model's cross-domain weakness, widely assumed, does not
+materialize; its geometry is precisely what transfers.
+
+This finding motivates GA-DCHG. If geometry is what transfers, the geometry
+descriptors, currently \emph{passive} gates, should be made \emph{active}:
+they should decide which hyperedges are generated, how they evolve over time, and
+how source and target are aligned. \textbf{Geometry-Anchored Dynamic
+Cross-Domain Hypergraphs (GA-DCHG)} does this with four components: (C1) it
+\emph{screens} the descriptors by their source--target distance and selects a
+per-protocol geometric anchor; this screening is itself a measurable result,
+because the invariant geometry is protocol-dependent; (C2) the anchor modulates dynamic $k$-NN
+hyperedge generation and is propagated across the trajectory as an exponential
+moving average; (C3) a closed-form $1$-Wasserstein term aligns the
+\emph{anchor geometry} between source and target-adapt sets, a cheap and
+physically interpretable alternative to adversarial embedding alignment
+\cite{ganin2016domain,arjovsky2017wgan,gretton2012kernel}; and (C4) evaluation is
+under strict disjoint protocols with a test-time \emph{intervention} audit that
+tests the decision's sensitivity to the geometry at inference time. On both single- and multi-source CWRU load shifts GA-DCHG attains the
+best target-test accuracy, improving on the structural baseline, and both are
+substantially ahead of the 1D-CNN; the component ablation confirms the anchor and
+temporal components carry part of the cross-domain benefit. We release all code
+so that every reported number is reproducible from the raw recordings.
